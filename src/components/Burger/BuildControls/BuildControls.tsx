@@ -33,7 +33,11 @@ const BuildControls = (props: IBuildControlsProps) => {
           }
         />
       ))}
-      <button className={classes.OrderButton} disabled={!props.purchaseable}>
+      <button
+        className={classes.OrderButton}
+        disabled={!props.purchaseable}
+        onClick={props.ordered}
+      >
         ORDER NOW
       </button>
     </div>
@@ -46,6 +50,7 @@ interface IBuildControlsProps {
   ingredients: IIngredients;
   price: number;
   purchaseable: boolean;
+  ordered: () => void;
 }
 
 export default BuildControls;
