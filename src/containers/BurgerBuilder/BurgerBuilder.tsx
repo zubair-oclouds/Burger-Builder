@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import Burger from "../../components/Burger/Burger";
 import BuildControls from "../../components/Burger/BuildControls/BuildControls";
 import { IIngredients } from "../../commons/types/Ingredients.interface";
+import Modal from "../../components/UI/Modal/Modal";
+import OrderSummary from "../../components/Burger/OrderSummary/OrderSummary";
 
 const INGREDIENT_PRICES = {
   salad: 0.5,
@@ -20,6 +22,7 @@ export class BurgerBuilder extends Component {
     },
     totalPrice: 4,
     purchaseable: false,
+    purchasing: false,
   };
 
   updatePurchaseState = () => {
@@ -68,9 +71,34 @@ export class BurgerBuilder extends Component {
     this.updatePurchaseState();
   };
 
+  purchaseHandler = () => {
+    this.setState({ purchasing: true });
+  };
+
+  purchaseCancelHandler = () => {
+    this.setState({ purchasing: false });
+  };
+  purchaseContinueHandler = () => {
+    alert("YOu continue!");
+  };
+
   render() {
     return (
       <>
+        {this.state.purchasing ? (
+          <Modal
+            show={this.state.purchasing}
+            modalClosed={this.purchaseCancelHandler}
+          >
+            <OrderSummary
+              ingredients={this.state.ingredients}
+              totalPrice={this.state.totalPrice}
+              purchaseCancelled={this.purchaseCancelHandler}
+              purchaseContinued={this.purchaseContinueHandler}
+            />
+          </Modal>
+        ) : null}
+
         <Burger ingredients={this.state.ingredients} />
         <BuildControls
           ingredientAdded={this.addIngredientHandler}
@@ -78,6 +106,7 @@ export class BurgerBuilder extends Component {
           ingredients={this.state.ingredients}
           price={this.state.totalPrice}
           purchaseable={this.state.purchaseable}
+          ordered={this.purchaseHandler}
         />
       </>
     );
@@ -88,4 +117,5 @@ interface IBurgerBuilderState {
   ingredients: IIngredients;
   totalPrice: number;
   purchaseable: boolean;
+  purchasing: boolean;
 }
