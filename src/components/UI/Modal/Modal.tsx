@@ -20,9 +20,9 @@ const Modal = (props: IModalProps) => {
 };
 
 interface IModalProps {
-  show: boolean;
-  modalClosed: () => void;
-  children: any;
+  show: any;
+  modalClosed?: () => void;
+  children?: any;
 }
 
 export default Modal;
