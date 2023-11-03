@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useEffect, useState } from "react";
 import Burger from "../../components/Burger/Burger";
 import BuildControls from "../../components/Burger/BuildControls/BuildControls";
 import { IIngredients } from "../../commons/types/Ingredients.interface";
@@ -10,173 +10,140 @@ import withErrorHandler from "../../hoc/withErrorHandler/withErrorHandler";
 import { IOrder } from "../../commons/types/Order.interface";
 import { Link, useNavigate } from "react-router-dom";
 
-const INGREDIENT_PRICES = {
+const INGREDIENT_PRICES: IIngredients = {
   salad: 0.5,
   cheese: 0.4,
   meat: 1.3,
   bacon: 0.7,
 };
 
-class BurgerBuilder extends Component {
-  // navigate = useNavigate()
-  state: IBurgerBuilderState = {
-    ingredients: {
-      salad: 0,
-      cheese: 0,
-      meat: 0,
-      bacon: 0,
-    },
-    totalPrice: 4,
-    purchaseable: false,
-    purchasing: false,
-    loading: false,
-    error: false,
-  };
+const BurgerBuilder = () => {
+  const [ingredients, setIngredients] = useState<IIngredients>({
+    salad: 0,
+    cheese: 0,
+    meat: 0,
+    bacon: 0,
+  });
+  const [totalPrice, setTotalPrice] = useState(4);
+  const [purchaseable, setPurchaseable] = useState(false);
+  const [purchasing, setPurchasing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const navigate = useNavigate();
 
-  componentDidMount(): void {
-    axios
-      .get("/Ingredients.json")
-      .then((response) => {
-        this.setState({ ingredients: response.data });
-      })
-      .catch((error) => {
-        this.setState({ error: true });
-      });
-  }
+  // componentDidMount(): void {
+  //   axios
+  //     .get("/Ingredients.json")
+  //     .then((response) => {
+  //       setState({ ingredients: response.data });
+  //     })
+  //     .catch((error) => {
+  //       setState({ error: true });
+  //     });
+  // }
 
-  updatePurchaseState = () => {
-    this.setState((prevState: IBurgerBuilderState) => {
-      const sum = Object.keys(prevState.ingredients).reduce((acc, key) => {
-        acc += prevState.ingredients[key as keyof IIngredients];
-        return acc;
-      }, 0);
-      if (sum <= 0) return { purchaseable: false };
-      else return { purchaseable: true };
-    });
-  };
+  useEffect(() => {
+    updatePurchaseState();
+    console.log("useEffect called");
+  }, [ingredients]);
 
-  addIngredientHandler = (type: keyof IIngredients) => {
-    this.setState((prevState: IBurgerBuilderState) => {
-      const oldCount: number = prevState.ingredients[type];
-      const updatedCount = oldCount + 1;
-      const updatedIngredients = {
-        ...prevState.ingredients,
-      };
-      updatedIngredients[type] = updatedCount;
-      return {
-        totalPrice: prevState.totalPrice + INGREDIENT_PRICES[type],
-        ingredients: updatedIngredients,
-      };
-    });
-    this.updatePurchaseState();
-  };
-
-  removeIngredientHandler = (type: keyof IIngredients) => {
-    const oldCount: number = this.state.ingredients[type];
-    if (oldCount <= 0) return;
-
-    this.setState((prevState: IBurgerBuilderState) => {
-      const oldCount: number = prevState.ingredients[type];
-      const updatedCount = oldCount - 1;
-      const updatedIngredients = {
-        ...prevState.ingredients,
-      };
-      updatedIngredients[type] = updatedCount;
-      return {
-        totalPrice: prevState.totalPrice - INGREDIENT_PRICES[type],
-        ingredients: updatedIngredients,
-      };
-    });
-    this.updatePurchaseState();
-  };
-
-  purchaseHandler = () => {
-    this.setState({ purchasing: true });
-  };
-
-  purchaseCancelHandler = () => {
-    this.setState({ purchasing: false });
-  };
-  purchaseContinueHandler = () => {
-    this.setState({ loading: true });
-    const order: IOrder = {
-      ingredients: this.state.ingredients,
-      price: this.state.totalPrice,
-      customer: {
-        name: "Zubair Khan",
-        address: {
-          society: "DHA",
-          phase: "4",
-          zipCode: "50001",
-        },
-        email: "muhammadzubair.khan@ocloudsolutions.net",
-      },
-      deliveryMethod: "fastest",
-    };
-    axios
-      .post("/orders.json", order)
-      .then((response) => {
-        this.setState({ loading: false, purchasing: false });
-      })
-      .catch((error) => {
-        this.setState({ loading: false, purchasing: false });
-      });
-  };
-
-  render() {
-    const orderSummary = this.state.purchasing ? (
-      <Modal
-        show={this.state.purchasing}
-        modalClosed={this.purchaseCancelHandler}
-      >
-        {this.state.loading ? (
-          <Spinner />
-        ) : (
-          <OrderSummary
-            ingredients={this.state.ingredients}
-            totalPrice={this.state.totalPrice}
-            purchaseCancelled={this.purchaseCancelHandler}
-            purchaseContinued={this.purchaseContinueHandler}
-          />
-        )}
-      </Modal>
-    ) : null;
-
-    let burger = <Spinner />;
-    if (this.state.ingredients) {
-      burger = (
-        <>
-          <Burger ingredients={this.state.ingredients} />
-          <BuildControls
-            ingredientAdded={this.addIngredientHandler}
-            ingredientRemoved={this.removeIngredientHandler}
-            ingredients={this.state.ingredients}
-            price={this.state.totalPrice}
-            purchaseable={this.state.purchaseable}
-            ordered={this.purchaseHandler}
-          />
-        </>
-      );
+  const updatePurchaseState = () => {
+    for (let key in ingredients) {
+      if (ingredients[key as keyof IIngredients] > 0) {
+        setPurchaseable(true);
+        return;
+      }
     }
+    setPurchaseable(false);
+  };
 
-    if (this.state.error) return <p>Ingredients can't be loaded!</p>;
+  const addIngredientHandler = (type: keyof IIngredients) => {
+    setIngredients({ ...ingredients, [type]: ingredients[type] + 1 });
+    setTotalPrice(totalPrice + INGREDIENT_PRICES[type]);
+  };
 
-    return (
+  const removeIngredientHandler = (type: keyof IIngredients) => {
+    if (ingredients[type] === 0) return;
+    setIngredients({ ...ingredients, [type]: ingredients[type] - 1 });
+    setTotalPrice(totalPrice - INGREDIENT_PRICES[type]);
+  };
+
+  const purchaseHandler = () => {
+    setPurchasing(true);
+  };
+
+  const purchaseCancelHandler = () => {
+    setPurchasing(false);
+  };
+  const purchaseContinueHandler = () => {
+    navigate("checkout", {
+      state: { ingredients: ingredients, price: totalPrice },
+    });
+    // setState({ loading: true });
+    // const order: IOrder = {
+    //   ingredients: state.ingredients,
+    //   price: state.totalPrice,
+    //   customer: {
+    //     name: "Zubair Khan",
+    //     address: {
+    //       society: "DHA",
+    //       phase: "4",
+    //       zipCode: "50001",
+    //     },
+    //     email: "muhammadzubair.khan@ocloudsolutions.net",
+    //   },
+    //   deliveryMethod: "fastest",
+    // };
+    // axios
+    //   .post("/orders.json", order)
+    //   .then((response) => {
+    //     setState({ loading: false, purchasing: false });
+    //   })
+    //   .catch((error) => {
+    //     setState({ loading: false, purchasing: false });
+    //   });
+  };
+
+  const orderSummary = purchasing ? (
+    <Modal show={purchasing} modalClosed={purchaseCancelHandler}>
+      {loading ? (
+        <Spinner />
+      ) : (
+        <OrderSummary
+          ingredients={ingredients}
+          totalPrice={totalPrice}
+          purchaseCancelled={purchaseCancelHandler}
+          purchaseContinued={purchaseContinueHandler}
+        />
+      )}
+    </Modal>
+  ) : null;
+
+  let burger = <Spinner />;
+  if (ingredients) {
+    burger = (
       <>
-        {orderSummary}
-        {burger}
+        <Burger ingredients={ingredients} />
+        <BuildControls
+          ingredientAdded={addIngredientHandler}
+          ingredientRemoved={removeIngredientHandler}
+          ingredients={ingredients}
+          price={totalPrice}
+          purchaseable={purchaseable}
+          ordered={purchaseHandler}
+        />
       </>
     );
   }
-}
 
-interface IBurgerBuilderState {
-  ingredients: IIngredients;
-  totalPrice: number;
-  purchaseable: boolean;
-  purchasing: boolean;
-  loading: boolean;
-  error: boolean;
-}
+  if (error) return <p>Ingredients can't be loaded!</p>;
+
+  return (
+    <>
+      {orderSummary}
+      {burger}
+    </>
+  );
+};
 
 export default withErrorHandler(BurgerBuilder, axios);
