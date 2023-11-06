@@ -1,0 +1,45 @@
+.Label {
+  font-weight: bold;
+  display: flex;
+  margin-bottom: 5px;
+}
+
+.Input[type="text"],
+.Input[type="email"] {
+  display: block;
+  width: 400px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  /* margin-bottom: 20px; */
+}
+
+.FormControl {
+  margin-bottom: 20px;
+}
+
+.Error {
+  color: red;
+  text-align: left;
+}
+
+.Form {
+  margin: 20px auto;
+  width: 80%;
+  text-align: center;
+  box-shadow: 0 2px 3px #ccc;
+  border: 1px solid #eee;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 600px) {
+  .Form {
+    width: 500px;
+  }
+}
