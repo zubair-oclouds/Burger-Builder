@@ -13,7 +13,7 @@ const Backdrop = (props: IBackdropProps) => {
 
 interface IBackdropProps {
   show: boolean;
-  clicked: () => void;
+  clicked?: () => void;
 }
 
 export default Backdrop;

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import classes from "./Layout.module.css";
 import Toolbar from "../../components/Navigation/Toolbar/Toolbar";
 import SideDrawer from "../../components/Navigation/SideDrawer/SideDrawer";
+import { Outlet } from 'react-router-dom'
 
 class Layout extends Component<any> {
   state = {
@@ -25,7 +26,7 @@ class Layout extends Component<any> {
           open={this.state.showSideDrawer}
           closed={this.sideDrawerCloseHandler}
         />
-        <main className={classes.Content}>{this.props.children}</main>
+        <main className={classes.Content}><Outlet /></main>
       </>
     );
   }

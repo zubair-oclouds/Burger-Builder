@@ -1,6 +1,7 @@
 import React from "react";
 import classes from "./Burger.module.css";
 import BurgerIngredients from "./BurgerIngredients/BurgerIngredients";
+import { IIngredients } from "../../commons/types/Ingredients.interface";
 
 const Burger = (props: IBurgerProps) => {
   let ingredientsCount: number = 0;
@@ -28,11 +29,6 @@ const Burger = (props: IBurgerProps) => {
 };
 
 interface IBurgerProps {
-  ingredients: {
-    meat: number;
-    cheese: number;
-    salad: number;
-    bacon: number;
-  };
+  ingredients: IIngredients;
 }
 export default Burger;
